@@ -62,6 +62,10 @@
         self.display.text = digit;
         self.userIsInTheMiddleOfEnteringANumber = YES;
     }
+
+    //just add to the history
+    self.history.text = [self.history.text stringByAppendingFormat:@"%@", [sender currentTitle]];
+
     
     //NSLog(@"user touched %@", digit);
 }
@@ -80,16 +84,6 @@
     
     //clear the display
     self.display.text = @"";
-}
-
-
-- (IBAction)justPress:(id)sender
-{
-//    NSString* history_text = self.history.text;
-    
-    self.history.text = [self.history.text stringByAppendingFormat:@" %@", [sender currentTitle]];
-    
-//    self.history.text = history_text;
 }
 
 - (IBAction)enterPressed {
@@ -116,21 +110,39 @@
         [self.brain pushOperand:[text doubleValue]];
     }
     
-    self.userIsInTheMiddleOfEnteringANumber = NO;
-    
     //set the isDotAlready to NO for orther use
     self.isDotAlready = NO;
+    
+    //show the space " " at the last of history
+    self.history.text = [self.history.text stringByAppendingFormat:@" "];
 
+}
+
+
+- (IBAction)backspacePressed:(id)sender
+{
+    if (self.display.text.length == 1)
+    {
+        self.display.text = @"0";
+    }
+    else
+    {
+        //set text with the text but lenght - 1
+        self.display.text = [self.display.text substringWithRange:NSMakeRange(0, self.display.text.length - 1)];
+    }
 }
 
 
 - (IBAction)operationPressed:(id)sender {
     
-    if(self.userIsInTheMiddleOfEnteringANumber){
-        [self enterPressed];
-    }
-    
     NSString *operation = [sender currentTitle];
+    
+    if(self.userIsInTheMiddleOfEnteringANumber && ![operation isEqualToString:@"+/-"]){
+        self.userIsInTheMiddleOfEnteringANumber = NO;
+    }
+
+    [self enterPressed];
+
     
     double result = [self.brain performOperation:operation];
     
@@ -142,6 +154,13 @@
     {
         self.display.text = [NSString stringWithFormat:@"%g", result];
     }
+    
+    self.history.text = [self.history.text
+                         stringByReplacingOccurrencesOfString:@"="
+                         withString:@""];
+    
+    //show the "=" at the last of history
+    self.history.text = [self.history.text stringByAppendingFormat:@"%@ = ", [sender currentTitle]];
     
 }
 
