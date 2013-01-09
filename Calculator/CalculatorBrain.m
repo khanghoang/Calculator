@@ -40,7 +40,8 @@
 {
     NSNumber *operandObject = [self.operandStack lastObject];
     
-    if(operandObject) [self.operandStack removeLastObject];
+    if(operandObject)
+        [self.operandStack removeLastObject];
     
     return [operandObject doubleValue];
 }
@@ -75,9 +76,18 @@
     {        
         result = sin ([self popOperand] * M_PI / 180);
     }
-    
-    //clear the rest of the stack
-    [self clearStack];
+    else if([operation isEqualToString:@"cos"])
+    {
+        result = cos ([self popOperand] * M_PI / 180);
+    }
+    else if([operation isEqualToString:@"sqrt"])
+    {
+        result = sqrt([self popOperand]);
+    }
+    else if([operation isEqualToString:@"π"])
+    {
+        result = M_PI;
+    }
     
     [self pushOperand:result];
     

@@ -63,8 +63,33 @@
         self.userIsInTheMiddleOfEnteringANumber = YES;
     }
     
+    //NSLog(@"user touched %@", digit);
+}
 
-    NSLog(@"user touched %@", digit);
+- (IBAction)clearPressed:(id)sender {
+    
+    //clear history display
+    self.history.text = @"";
+    
+    //clear operand stack
+    [self.brain clearStack];
+    
+    //reset isDotAlready and is
+    self.isDotAlready = NO;
+    self.userIsInTheMiddleOfEnteringANumber = NO;
+    
+    //clear the display
+    self.display.text = @"";
+}
+
+
+- (IBAction)justPress:(id)sender
+{
+//    NSString* history_text = self.history.text;
+    
+    self.history.text = [self.history.text stringByAppendingFormat:@" %@", [sender currentTitle]];
+    
+//    self.history.text = history_text;
 }
 
 - (IBAction)enterPressed {
@@ -79,7 +104,17 @@
     if([text hasSuffix:@"."])
         text = [NSString stringWithFormat:@"%@0", text];
     
-    [self.brain pushOperand:[text doubleValue]];
+    //check if there is only 1 character and it must be PI
+    if([text hasPrefix:@"π"])
+    {
+        //put PI into stack
+        [self.brain pushOperand:M_PI];
+    }        
+    else
+    {
+        //put to stack of operand
+        [self.brain pushOperand:[text doubleValue]];
+    }
     
     self.userIsInTheMiddleOfEnteringANumber = NO;
     
@@ -99,7 +134,14 @@
     
     double result = [self.brain performOperation:operation];
     
-    self.display.text = [NSString stringWithFormat:@"%g", result];
+    if (result == M_PI)
+    {
+        self.display.text = [NSString stringWithFormat:@"π"];
+    }
+    else
+    {
+        self.display.text = [NSString stringWithFormat:@"%g", result];
+    }
     
 }
 
