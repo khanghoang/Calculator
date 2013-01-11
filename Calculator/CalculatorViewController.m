@@ -80,7 +80,6 @@
     
     //reset isDotAlready and is
     self.isDotAlready = NO;
-    self.userIsInTheMiddleOfEnteringANumber = NO;
     
     //clear the display
     self.display.text = @"";
@@ -115,9 +114,18 @@
     
     //show the space " " at the last of history
     self.history.text = [self.history.text stringByAppendingFormat:@" "];
+    
+    self.userIsInTheMiddleOfEnteringANumber = NO;
+    
+    //erase the display
+//    self.display.text = 0;
 
 }
 
+- (IBAction)minusPressed:(id)sender {
+    double number = [self.display.text doubleValue];
+    self.display.text = [NSString stringWithFormat:@"%g",(number * -1)];
+}
 
 - (IBAction)backspacePressed:(id)sender
 {
@@ -132,15 +140,21 @@
     }
 }
 
+- (BOOL)isSingle:(NSString*)operation
+{
+    NSSet* set = [NSSet alloc] initWithArray:<#(NSArray *)#>;
+}
 
 - (IBAction)operationPressed:(id)sender {
     
     NSString *operation = [sender currentTitle];
     
-    if(self.userIsInTheMiddleOfEnteringANumber && ![operation isEqualToString:@"+/-"]){
+    //check if user press "+/-", we allow them to continue to enter digit
+
+    if(self.userIsInTheMiddleOfEnteringANumber){
         self.userIsInTheMiddleOfEnteringANumber = NO;
     }
-
+    
     [self enterPressed];
 
     
@@ -155,8 +169,7 @@
         self.display.text = [NSString stringWithFormat:@"%g", result];
     }
     
-    self.history.text = [self.history.text
-                         stringByReplacingOccurrencesOfString:@"="
+    self.history.text = [self.history.text stringByReplacingOccurrencesOfString:@"="
                          withString:@""];
     
     //show the "=" at the last of history
