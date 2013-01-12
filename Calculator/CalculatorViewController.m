@@ -140,10 +140,28 @@
     }
 }
 
+//check if operation just needs single input
 - (BOOL)isSingle:(NSString*)operation
 {
-    NSSet* set = [NSSet alloc] initWithArray:<#(NSArray *)#>;
+    NSSet* set = [NSSet setWithObjects:@"sin", @"cos", @"sqrt", nil];
+    return [set containsObject:operation];
 }
+
+//check if the operatoion needs 2 inputs
+- (BOOL)isMutil:(NSString*)operation
+{
+    NSSet* set = [NSSet setWithObjects:@"+", @"-", @"/", @"*", nil];
+    return [set containsObject:operation];
+}
+
+//check if the oparation dont need any input
+-(BOOL)isPI:(NSString*)operation
+{
+    NSSet* set = [NSSet setWithObjects:@"", nil];
+    return [set containsObject:operation];
+}
+
+NSDictionary
 
 - (IBAction)operationPressed:(id)sender {
     
