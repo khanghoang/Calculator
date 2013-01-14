@@ -16,6 +16,7 @@
 //variables
 @property (nonatomic, strong) NSDictionary* testVariableValues;
 
+//@property (weak, nonatomic) IBOutlet UILabel *variableDisplay;
 
 //decalre the property that just have 1 dot
 @property (nonatomic) BOOL isDotAlready;
@@ -109,6 +110,10 @@
     //run program
     double result = [[self.brain class] runProgram:self.brain.program withVariableValues:self.testVariableValues];
     
+    //write label
+   
+    
+    
     self.display.text = [NSString stringWithFormat:@"%g",result];
 }
 
@@ -141,8 +146,8 @@
     self.isDotAlready = NO;
     
     //show the space " " at the last of history
-    //self.history.text = [self.history.text stringByAppendingFormat:@" "];
-    self.history.text=[[CalculatorBrain class] descriptionOfProgram:self.brain.program];
+    self.history.text = [self.history.text stringByAppendingFormat:@", "];
+    //self.history.text=[[CalculatorBrain class] descriptionOfProgram:self.brain.program];
     
     self.userIsInTheMiddleOfEnteringANumber = NO;
     
@@ -168,6 +173,18 @@
         self.display.text = [self.display.text substringWithRange:NSMakeRange(0, self.display.text.length - 1)];
     }
 }
+
+- (IBAction)undePressed:(id)sender {
+    
+    [self.brain deleteLastOperand];
+    
+    self.display.text = [NSString stringWithFormat:@"%g", [[self.brain class] runProgram:self.brain.program withVariableValues:self.testVariableValues]];
+    
+    self.history.text = [[self.brain class] descriptionOfProgram:self.brain.program];
+    
+    
+}
+
 
 - (IBAction)operationPressed:(UIButton*)sender {
     

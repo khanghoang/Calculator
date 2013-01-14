@@ -16,6 +16,7 @@
 
 - (double)performOperation:(NSString *)operation;
 - (void)clearStack;
+- (void)deleteLastOperand;
 
 @property (nonatomic, readonly) id program;
 

@@ -75,6 +75,11 @@
     return [self popOperandOffProgramStack:stack];
 }
 
+-(void)deleteLastOperand
+{
+    [self.programStack removeLastObject];
+}
+
 - (id)program
 {
     return [self.programStack copy];
@@ -97,44 +102,6 @@
     if ([operationSet containsObject:operation] ) result= 1;
     return result;
 }
-//compare two operations' priority
-+ (BOOL) compareOperationPriority:(NSString *)firstOperation vs:(NSString *)secondOperation{
-    BOOL result=0;
-    NSDictionary *operationPriority= [NSDictionary dictionaryWithObjectsAndKeys:@"1",@"+",@"1",@"-",@"2",@"*",@"2",@"/",@"3",@"sin",@"3",@"cos",@"3",@"sqrt", nil];
-    int firstOperationLevel=[[operationPriority objectForKey:firstOperation] intValue];
-    int secondOperationLevel;
-    if (secondOperation) {
-        secondOperationLevel=[[operationPriority objectForKey:secondOperation] intValue];
-        if (firstOperationLevel>secondOperationLevel)  result=1;
-    }
-    return result;
-}
-//get rid of unnecessary parienthese by comparing the last and the secondlast operation
-+(NSString *) surpressParienthese:(NSString *)description{
-    NSMutableArray *descriptionArray=[[description componentsSeparatedByString:@" "] mutableCopy];
-    
-    NSString *lastOperation,*secondLastOperation;
-    for (int i=[descriptionArray count]-1; i>0 && !lastOperation; i--) {
-        if([CalculatorBrain isOperation:[descriptionArray objectAtIndex:i]]){
-            lastOperation=[descriptionArray objectAtIndex:i];//last operation found
-            
-            for (int j=i-1; j>0 && !secondLastOperation; j--) {
-                if ([CalculatorBrain isOperation:[descriptionArray objectAtIndex:j]]) {
-                    secondLastOperation=[descriptionArray objectAtIndex:j];
-                    
-                }
-            }
-            if (![CalculatorBrain compareOperationPriority:lastOperation vs:secondLastOperation]) {
-                [descriptionArray removeObjectAtIndex:i-1];
-                [descriptionArray removeObjectAtIndex:0];
-            }
-            
-        }
-    }
-    
-    description=[[descriptionArray valueForKey:@"description"] componentsJoinedByString:@" "];
-    return description;
-}
 
 + (NSString *) typeOfString:(NSString *)string{
     NSSet *twoOperandOperation=[NSSet setWithObjects:@"+",@"-",@"*",@"/", nil];
@@ -155,7 +122,7 @@
     
     id topOfStack=[stack lastObject];
     [stack removeLastObject];
-    if ([topOfStack isKindOfClass:[NSNumber class]]) description=[topOfStack stringValue];
+    if ([topOfStack isKindOfClass:[NSNumber class]]) description= [NSString stringWithFormat:@"%@", [topOfStack stringValue]];
     
     else if([topOfStack isKindOfClass:[NSString class]])
     {
@@ -164,8 +131,8 @@
         {
             NSString *second=[CalculatorBrain descriptionOfTopOfStack:stack];
             NSString *first=[CalculatorBrain descriptionOfTopOfStack:stack];
-            description=[NSString stringWithFormat:@"( %@ ) %@ %@",first,topOfStack,second];
-            description=[CalculatorBrain surpressParienthese: description];  //only two operand operation needs to surpress
+//            description=[NSString stringWithFormat:@"( %@ ) %@ %@ ",first,topOfStack,second];
+            description=[NSString stringWithFormat:@" ( %@ %@ %@ )",first,topOfStack,second];
         }
         if ([[CalculatorBrain typeOfString:topOfStack] isEqualToString:@"singleOperandOperation"]) {
             description=[NSString stringWithFormat:@"%@ ( %@ )",topOfStack,[CalculatorBrain descriptionOfTopOfStack:stack]];
@@ -177,10 +144,11 @@
             description=topOfStack;
         }
     }
-    //check if description has "null" in the case of user pressed operation withoud operand before
+    
+    //check if description has "null" in the case of user pressed operation without operand or not enough 
     NSRange nsrange=[description rangeOfString:@"null"];
     if (nsrange.location!=NSNotFound) {
-        description=@"Operand is not entered";
+        description=@"null";
     }
     return description;
 }
