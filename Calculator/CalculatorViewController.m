@@ -13,27 +13,29 @@
 @property (nonatomic) BOOL userIsInTheMiddleOfEnteringANumber;
 @property (nonatomic, strong) CalculatorBrain *brain;
 
+//variables
+@property (nonatomic, strong) NSDictionary* testVariableValues;
+
 
 //decalre the property that just have 1 dot
 @property (nonatomic) BOOL isDotAlready;
 
 @end
 
-@implementation CalculatorViewController
-
-@synthesize display;
-
-@synthesize userIsInTheMiddleOfEnteringANumber;
-
-@synthesize isDotAlready;
-
-@synthesize brain = _brain;
+@implementation CalculatorViewController;
 
 -(CalculatorBrain *)brain
 {
     if(!_brain) _brain = [[CalculatorBrain alloc] init];
     
     return _brain;
+}
+
+-(NSDictionary*)testVariableValues
+{
+    if(!_testVariableValues)
+        _testVariableValues = [[NSDictionary alloc]init];
+    return _testVariableValues;
 }
 
 - (IBAction)digitPressed:(UIButton *)sender {
@@ -43,7 +45,7 @@
     if([digit isEqualToString:@"."])
     {
         //if it exist "."
-        if(isDotAlready)
+        if(self.isDotAlready)
         {
             //set digit to "", so they cant effect to the operand
             digit = @"";
@@ -51,7 +53,7 @@
         else
         {
             //set the isDotAlready to YES
-            isDotAlready = YES;
+            self.isDotAlready = YES;
         }
     }
     
@@ -70,6 +72,16 @@
     //NSLog(@"user touched %@", digit);
 }
 
+
+- (IBAction)variablePressed:(UIButton*)sender {
+    if (self.userIsInTheMiddleOfEnteringANumber) {
+        [self enterPressed];
+    }
+    
+    [self.brain pushVariable:sender.currentTitle];
+    self.display.text = sender.currentTitle;
+}
+
 - (IBAction)clearPressed:(id)sender {
     
     //clear history display
@@ -85,6 +97,22 @@
     self.display.text = @"";
 }
 
+- (IBAction)testPressed:(UIButton*)sender {
+    if([sender.currentTitle isEqualToString:@"Test 1"])
+    {
+        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:@"3",@"a",@"4",@"b",@"10",@"x", nil];
+    }else if([sender.currentTitle isEqualToString:@"Test 2"])
+    {
+        self.testVariableValues = [NSDictionary dictionaryWithObjectsAndKeys:@"5",@"a",@"-4",@"b",@"8",@"x", nil];
+    }
+    
+    //run program
+    double result = [[self.brain class] runProgram:self.brain.program withVariableValues:self.testVariableValues];
+    
+    self.display.text = [NSString stringWithFormat:@"%g",result];
+}
+
+
 - (IBAction)enterPressed {
     
     NSString* text = self.display.text;
@@ -98,22 +126,23 @@
         text = [NSString stringWithFormat:@"%@0", text];
     
     //check if there is only 1 character and it must be PI
-    if([text hasPrefix:@"π"])
-    {
-        //put PI into stack
-        [self.brain pushOperand:M_PI];
-    }        
-    else
-    {
+//    if([text hasPrefix:@"π"])
+//    {
+//        //put PI into stack
+//        [self.brain pushOperand:M_PI];
+//    }        
+//    else
+//    {
         //put to stack of operand
         [self.brain pushOperand:[text doubleValue]];
-    }
+//    }
     
     //set the isDotAlready to NO for orther use
     self.isDotAlready = NO;
     
     //show the space " " at the last of history
-    self.history.text = [self.history.text stringByAppendingFormat:@" "];
+    //self.history.text = [self.history.text stringByAppendingFormat:@" "];
+    self.history.text=[[CalculatorBrain class] descriptionOfProgram:self.brain.program];
     
     self.userIsInTheMiddleOfEnteringANumber = NO;
     
@@ -140,59 +169,34 @@
     }
 }
 
-//check if operation just needs single input
-- (BOOL)isSingle:(NSString*)operation
-{
-    NSSet* set = [NSSet setWithObjects:@"sin", @"cos", @"sqrt", nil];
-    return [set containsObject:operation];
-}
-
-//check if the operatoion needs 2 inputs
-- (BOOL)isMutil:(NSString*)operation
-{
-    NSSet* set = [NSSet setWithObjects:@"+", @"-", @"/", @"*", nil];
-    return [set containsObject:operation];
-}
-
-//check if the oparation dont need any input
--(BOOL)isPI:(NSString*)operation
-{
-    NSSet* set = [NSSet setWithObjects:@"", nil];
-    return [set containsObject:operation];
-}
-
-NSDictionary
-
-- (IBAction)operationPressed:(id)sender {
+- (IBAction)operationPressed:(UIButton*)sender {
     
     NSString *operation = [sender currentTitle];
     
     //check if user press "+/-", we allow them to continue to enter digit
 
     if(self.userIsInTheMiddleOfEnteringANumber){
+        
+        //for single 
+        [self enterPressed];
+        
         self.userIsInTheMiddleOfEnteringANumber = NO;
     }
     
-    [self enterPressed];
-
-    
     double result = [self.brain performOperation:operation];
-    
-    if (result == M_PI)
-    {
-        self.display.text = [NSString stringWithFormat:@"π"];
-    }
-    else
-    {
+        
+//    if (result == M_PI)
+//    {
+//        self.display.text = [NSString stringWithFormat:@"π"];
+//    }
+//    else
+//    {
         self.display.text = [NSString stringWithFormat:@"%g", result];
-    }
-    
-    self.history.text = [self.history.text stringByReplacingOccurrencesOfString:@"="
-                         withString:@""];
+//    }
     
     //show the "=" at the last of history
-    self.history.text = [self.history.text stringByAppendingFormat:@"%@ = ", [sender currentTitle]];
-    
+    //self.history.text = [self.history.text stringByAppendingFormat:@"%@ = ", [sender currentTitle]];
+    self.history.text=[[CalculatorBrain class] descriptionOfProgram:self.brain.program];
 }
 
 @end
